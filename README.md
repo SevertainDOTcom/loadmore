@@ -37,3 +37,7 @@ Get POST or GET properties on you server function. Yii2Example:
 ```php
 counter = Yii::$app->request->post('counter'); //auto script counter
 ```
+
+## License
+
+Use free on Coordi2-framework (even commercial projects).
