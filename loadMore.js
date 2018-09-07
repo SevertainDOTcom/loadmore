@@ -1,3 +1,8 @@
+/*
+* Developed by Severtain @ Library LoadMore v1.0.1
+* All rights reserved
+*/
+
 (function () {
     var elem, options, that, i, eventClickListener, _isUpdate = true;
     /*
@@ -23,14 +28,15 @@
     function _init() {
         var arr_options_scope = {
             require: ["ajaxUrl", "domButtonUpload"],
-            variable: ["uploadIcon", "ajaxType", "filters", "inversion", "eventAnswer" , "eventPrevSend", "eventAfterSend", "eventError"]
+            variable: ["uploadIcon", "ajaxType", "filters", "inversion", "eventAnswer" , "eventPrevSend", "eventAfterSend", "eventError", "hideButtonUpload"]
         };
 
+        //Insert options value in object memory
         for (var j in arr_options_scope)
             for (i in arr_options_scope[j]) {
                 var val = arr_options_scope[j][i];
 
-                if (!options[val]) {
+                if (options[val]===undefined) {
                     if (j=="require") {
                         console.warn("Abort loadMore initialization: not available property: "+val);
                         die();
@@ -82,6 +88,7 @@
         uploadIcon: null,
         filters: null,
         inversion: false,
+        hideButtonUpload: true,
         eventAnswer: function () {},
         eventPrevSend: function () {},
         eventAfterSend: function () {},
@@ -109,9 +116,8 @@
             }
 
             if (that._isUpdate) {
-
                 that.eventPrevSend();
-                $(that.domButtonUpload).hide();
+                if (that.hideButtonUpload) $(that.domButtonUpload).hide();
                 $(that.domButtonUpload).attr("disabled", "true");
                 if (that.uploadIcon) $(that.uploadIcon).show();
 
@@ -120,38 +126,44 @@
                 for (i in that.filters)
                     sendData[i] = that.filters[i];
 
-                $.post(that.ajaxUrl, sendData, function (answer) {
-                    var text = answer;
-                    answer = text.replace(/\r|\n/g, '<br>');
+                $.ajax({
+                    method: that.ajaxType,
+                    url: that.ajaxUrl,
+                    data: sendData,
+                    success: function (answer) {
+                        var text = answer;
+                        answer = text.replace(/\r|\n/g, '<br>');
 
-                    try { //проверка на парсинг ответа
-                        var data = JSON.parse(answer);
-                    } catch  (e) {
-                        console.warn ('Failed parse answer: ' + e);
-                        _isUpdate = false;
-                        that.eventError(e);
-                        return;
+                        try { //проверка на парсинг ответа
+                            var data = JSON.parse(answer);
+                        } catch (e) {
+                            console.warn('Failed parse answer: ' + e);
+                            _isUpdate = false;
+                            that.eventError(e);
+                            return;
+                        }
+                        text = $("<div />").html(data['render']).text();
+
+                        if (!that.inversion)
+                            $(elem).append(text);
+                        else
+                            $(elem).children(":first").before(text);
+
+                        //Next page
+                        that._counter++;
+
+                        if (!data['more'] || data['more'] == 'false') {
+                            if (that.hideButtonUpload) $(that.domButtonUpload).hide();
+                        }
+                        else {
+                            if (that.hideButtonUpload) $(that.domButtonUpload).show();
+                            $(that.domButtonUpload).removeAttr("disabled");
+                        }
+
+                        if (that.uploadIcon) $(that.uploadIcon).hide();
+
+                        that.eventAfterSend();
                     }
-                    text = $("<div />").html(data['render']).text();
-
-                    if (!that.inversion)
-                        $(elem).append( text );
-                    else
-                        $(elem).children(":first").before( text );
-
-                    //Next page
-                    that._counter++;
-
-                    if (!data['more'] || data['more']=='false') //Скрыть, показать кнопку подзагрузки
-                        $(that.domButtonUpload).hide();
-                    else {
-                        $(that.domButtonUpload).show();
-                        $(that.domButtonUpload).removeAttr("disabled");
-                    }
-
-                    if (that.uploadIcon)$(that.uploadIcon).hide();
-
-                    that.eventAfterSend();
                 });
             }
         }

@@ -6,9 +6,9 @@ After you connect lib file, call loadMore constructor.
 Example:
 
 ```javascript
-var lazyContainer = new loadMore($("#data_container"), {
+var lazyContainer = new loadMore("#data_container", {
     ajaxUrl:  "/ajax-lazy-container",
-    domButtonUpload: $("#load_button")
+    domButtonUpload: "#load_button"
 });
 ```
 
@@ -18,11 +18,12 @@ You can add more settings to you init function:
 ($("#data_container"), {
     //require
     ajaxUrl:  "/ajax-lazy-container",
-    domButtonUpload: $("#load_button")
+    domButtonUpload: $("#load_button"),
     //situative
     uploadIcon: .. ,
     ajaxType: .. ,
     filters: { ... },
+	hideButtonUpload: boolean,
     inversion: boolean,
     eventAnswer: () => {..},
     eventPrevSend: () => {..},
@@ -41,3 +42,4 @@ counter = Yii::$app->request->post('counter'); //auto script counter
 ## License
 
 Use free on Coordi2-framework (even commercial projects).
+License inside.
