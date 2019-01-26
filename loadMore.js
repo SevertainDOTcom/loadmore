@@ -132,6 +132,7 @@
                     data: sendData,
                     success: function (answer) {
                         var text = answer;
+                        text = text.replace(/\r?\n/g, ""); //remove line break
                         answer = text.replace(/\r|\n/g, '<br>');
 
                         try { //проверка на парсинг ответа
